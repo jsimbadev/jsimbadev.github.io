@@ -1,0 +1,69 @@
+baseURL = "https://jordan-simba.github.io/"
+locale = "en-gb"
+title = "Jordan Simbananiye"
+enableInlineShortcodes = true
+
+[pagination]
+  pagerSize = 6
+
+[module]
+  [[module.imports]]
+    path = "github.com/adityatelange/hugo-PaperMod"
+
+[params]
+  defaultTheme = "auto"
+  ShowReadingTime = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowRssButtonInSectionTermList = true
+  github = "jsimbadev"
+  name = "Jordan Simbananiye"
+  bio = "PhD student working on geometry-aware Monte Carlo methods for statistical inference."
+  description = "Personal site and blog for Jordan Simbananiye, covering research in geometry-aware Monte Carlo methods, stochastic approximation, and computational inference."
+  mainSections = ["posts"]
+
+[params.homeInfoParams]
+  Title = "Jordan Simbananiye"
+  Content = """
+  <p>PhD student working on geometry-aware Monte Carlo methods for statistical inference. I also build distributed systems, machine learning infrastructure, data pipelines, and research tooling.</p>
+  <p><a href="/about/">About</a> · <a href="/contact/">Contact</a></p>
+  """
+  AlignSocialIconsTo = "left"
+
+[[params.socialIcons]]
+  name = "github"
+  url = "https://github.com/jsimbadev"
+
+[[params.socialIcons]]
+  name = "rss"
+  url = "/index.xml"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[menu]
+  [[menu.main]]
+    identifier = "about"
+    name = "About"
+    url = "/about/"
+    weight = 10
+
+  [[menu.main]]
+    identifier = "contact"
+    name = "Contact"
+    url = "/contact/"
+    weight = 20
+
+  [[menu.main]]
+    identifier = "posts"
+    name = "Posts"
+    url = "/posts/"
+    weight = 30
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+  series = "series"
