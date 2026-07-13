@@ -2,6 +2,7 @@ baseURL = "https://jordan-simba.github.io/"
 locale = "en-gb"
 title = "Jordan Simbananiye"
 enableInlineShortcodes = true
+relativeURLs = true
 
 [pagination]
   pagerSize = 6
@@ -27,7 +28,7 @@ enableInlineShortcodes = true
   Title = "Jordan Simbananiye"
   Content = """
   <p>PhD student working on geometry-aware Monte Carlo methods for statistical inference. I also build distributed systems, machine learning infrastructure, data pipelines, and research tooling.</p>
-  <p><a href="/about/">About</a> · <a href="/contact/">Contact</a></p>
+  <p><a href="about/">About</a> · <a href="contact/">Contact</a> · <a href="posts/">Posts</a></p>
   """
   AlignSocialIconsTo = "left"
 
@@ -37,7 +38,7 @@ enableInlineShortcodes = true
 
 [[params.socialIcons]]
   name = "rss"
-  url = "/index.xml"
+  url = "index.xml"
 
 [markup]
   [markup.goldmark]
@@ -48,19 +49,19 @@ enableInlineShortcodes = true
   [[menu.main]]
     identifier = "about"
     name = "About"
-    url = "/about/"
+    url = "about/"
     weight = 10
 
   [[menu.main]]
     identifier = "contact"
     name = "Contact"
-    url = "/contact/"
+    url = "contact/"
     weight = 20
 
   [[menu.main]]
     identifier = "posts"
     name = "Posts"
-    url = "/posts/"
+    url = "posts/"
     weight = 30
 
 [taxonomies]

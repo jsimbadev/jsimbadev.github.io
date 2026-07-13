@@ -22,3 +22,8 @@ I've worked as a software engineer for almost a decade, building distributed sys
 ## Education
 
 - MPhys Physics, University of Southampton, Southampton, UK, Sept 2013 to July 2017
+
+## Links
+
+- [Posts](../posts/)
+- [Contact](../contact/)

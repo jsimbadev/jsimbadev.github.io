@@ -11,3 +11,5 @@ This site is a home for writing about research, software, and the practical side
 My current work focuses on geometry-aware Monte Carlo methods for statistical inference, with nearby interests in stochastic approximation, geometric inference, and dynamical systems.
 
 Before starting the PhD, I spent nearly a decade building distributed systems, machine learning infrastructure, data pipelines, and research tooling. That mix of research and engineering is the thread I expect this blog to follow.
+
+You can also read [about me](../../about/) or reach me through the [contact page](../../contact/).
