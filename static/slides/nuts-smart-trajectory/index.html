@@ -1,0 +1,1592 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NUTS as Smart Trajectory Construction</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
+
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        },
+        chtml: {
+          scale: 0.93,
+          matchFontHeight: false
+        },
+        startup: {
+          pageReady: () =>
+            MathJax.startup.defaultPageReady().then(() => {
+              if (window.Reveal) {
+                Reveal.layout();
+              }
+            })
+        }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+      :root {
+        --paper: #fbfaf7;
+        --ink: #1c2430;
+        --muted: #586270;
+        --line: #d8d3c8;
+        --soft: #f0ede6;
+        --soft-2: #e7f0f6;
+        --blue: #275c8f;
+        --red: #9f3a3a;
+        --green: #2f6f4e;
+        --gold: #8a6a1f;
+      }
+
+      .wip-ribbon {
+        background: #fff7d6;
+        border: 1px solid #d6bc63;
+        border-radius: 999px;
+        color: #5f4710;
+        font-family: "Aptos", "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0;
+        padding: 0.35rem 0.65rem;
+        position: fixed;
+        right: 1rem;
+        text-transform: uppercase;
+        top: 1rem;
+        z-index: 20;
+      }
+
+      html,
+      body {
+        background: var(--paper);
+      }
+
+      .reveal {
+        color: var(--ink);
+        font-family: "Aptos", "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 30px;
+      }
+
+      .reveal .slides {
+        text-align: left;
+      }
+
+      .reveal .slides section {
+        box-sizing: border-box;
+        overflow: hidden;
+        padding: 36px 44px;
+      }
+
+      .reveal .slides section > * {
+        max-width: 100%;
+      }
+
+      .reveal h1,
+      .reveal h2,
+      .reveal h3 {
+        color: var(--ink);
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 500;
+        letter-spacing: 0;
+        line-height: 1.08;
+        margin: 0 0 0.55em;
+        text-transform: none;
+      }
+
+      .reveal h1 {
+        font-size: 1.78em;
+      }
+
+      .reveal h2 {
+        font-size: 1.28em;
+      }
+
+      .reveal h3 {
+        font-size: 0.84em;
+      }
+
+      .reveal p,
+      .reveal li {
+        color: var(--muted);
+        font-size: 0.68em;
+        line-height: 1.36;
+      }
+
+      .reveal strong {
+        color: var(--ink);
+        font-weight: 650;
+      }
+
+      .kicker {
+        color: var(--blue);
+        font-size: 0.42em;
+        font-weight: 700;
+        letter-spacing: 0;
+        margin-bottom: 0.7rem;
+        text-transform: uppercase;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 0.8em;
+        margin-top: -0.25rem;
+      }
+
+      .rule {
+        background: var(--line);
+        height: 1px;
+        margin: 1.1rem 0;
+        width: 100%;
+      }
+
+      .cols {
+        display: grid;
+        gap: 0.85rem;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .cols-3 {
+        display: grid;
+        gap: 0.65rem;
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .box {
+        background: #fffdf9;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 0.9rem 1rem;
+      }
+
+      .box h3 {
+        color: var(--blue);
+        font-family: "Aptos", "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 0.58em;
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+      }
+
+      .box p,
+      .box li {
+        font-size: 0.6em;
+      }
+
+      .note {
+        border-left: 4px solid var(--blue);
+        color: var(--ink);
+        margin-top: 0.9rem;
+        padding-left: 0.8rem;
+      }
+
+      .note p {
+        color: var(--ink);
+        margin: 0;
+      }
+
+      .small {
+        font-size: 0.6em;
+      }
+
+      .tiny {
+        font-size: 0.5em;
+      }
+
+      .center {
+        text-align: center;
+      }
+
+      .math-block {
+        background: var(--soft);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        font-size: 0.66em;
+        line-height: 1.28;
+        margin: 0.75rem 0;
+        max-width: 100%;
+        overflow: hidden;
+        padding: 0.95rem 1.15rem;
+      }
+
+      .math-block p {
+        color: var(--ink);
+        margin: 0;
+      }
+
+      .reveal mjx-container {
+        color: var(--ink) !important;
+        font-weight: 400 !important;
+      }
+
+      .reveal p mjx-container,
+      .reveal li mjx-container,
+      .reveal h3 mjx-container,
+      .reveal .box mjx-container,
+      .reveal .note mjx-container {
+        font-size: 1em !important;
+        line-height: 1 !important;
+      }
+
+      .reveal p mjx-container[jax="CHTML"],
+      .reveal li mjx-container[jax="CHTML"],
+      .reveal h3 mjx-container[jax="CHTML"],
+      .reveal .box mjx-container[jax="CHTML"],
+      .reveal .note mjx-container[jax="CHTML"] {
+        display: inline-block !important;
+        vertical-align: baseline !important;
+      }
+
+      .reveal .math-block mjx-container[jax="CHTML"] {
+        display: block;
+        font-size: 0.9em !important;
+        line-height: 1.18 !important;
+        margin: 0.14em 0 !important;
+        max-width: 100%;
+        overflow: hidden;
+      }
+
+      .reveal .math-block mjx-container[jax="CHTML"] mjx-math {
+        font-weight: 400 !important;
+      }
+
+      .reveal .math-block.center mjx-container[jax="CHTML"] {
+        margin-left: auto !important;
+        margin-right: auto !important;
+      }
+
+      .reveal .math-block.tiny {
+        font-size: 0.58em;
+      }
+
+      .reveal .math-block.tiny mjx-container[jax="CHTML"] {
+        font-size: 1em !important;
+      }
+
+      .steps {
+        counter-reset: step;
+        display: grid;
+        gap: 0.28rem;
+        margin-top: 0.4rem;
+      }
+
+      .step {
+        align-items: start;
+        border-bottom: 1px solid var(--line);
+        display: grid;
+        gap: 0.5rem;
+        grid-template-columns: 1.65rem 1fr;
+        padding: 0.24rem 0 0.3rem;
+      }
+
+      .step::before {
+        color: var(--blue);
+        content: counter(step);
+        counter-increment: step;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 0.88em;
+      }
+
+      .step p {
+        margin: 0;
+      }
+
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+      }
+
+      .tag {
+        background: var(--soft);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--ink);
+        font-size: 0.42em;
+        padding: 0.22rem 0.48rem;
+      }
+
+      .diagram {
+        background: #fffdf9;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        margin-top: 0.45rem;
+        max-width: 100%;
+        overflow: hidden;
+        padding: 0.4rem;
+      }
+
+      svg {
+        display: block;
+        height: auto;
+        max-height: 31vh;
+        width: 100%;
+      }
+
+      .mono {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      }
+
+      .array {
+        display: grid;
+        gap: 0.18rem;
+        grid-template-columns: repeat(8, 1fr);
+        margin: 0.3rem auto 0.55rem;
+        max-width: 92%;
+      }
+
+      .cell {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        color: var(--ink);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 0.56em;
+        padding: 0.28rem 0;
+        text-align: center;
+      }
+
+      .pipeline {
+        align-items: center;
+        display: grid;
+        gap: 0.22rem;
+        grid-template-columns: repeat(7, 1fr);
+        margin-top: 0.55rem;
+      }
+
+      .pipe-item {
+        background: #fffdf9;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        color: var(--ink);
+        font-size: 0.44em;
+        min-height: 1.8rem;
+        padding: 0.25rem 0.3rem;
+        text-align: center;
+      }
+
+      .arrow {
+        color: var(--blue);
+        font-size: 0.56em;
+        text-align: center;
+      }
+
+      .two-list {
+        display: grid;
+        gap: 0.65rem;
+        grid-template-columns: 1fr 1fr;
+        margin-top: 0.45rem;
+      }
+
+      .two-list ul {
+        margin-top: 0.2rem;
+      }
+
+      .title-slide {
+        display: flex !important;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .large-quote {
+        color: var(--ink);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 0.92em;
+        line-height: 1.18;
+        margin-top: 0.75rem;
+        text-align: center;
+      }
+
+      .slide-root-invariance .kicker {
+        margin-bottom: 0.45rem;
+      }
+
+      .slide-root-invariance h2 {
+        margin-bottom: 0.35em;
+      }
+
+      .slide-root-invariance .diagram {
+        margin-top: 0.25rem;
+        padding: 0.35rem 0.45rem;
+      }
+
+      .slide-root-invariance .diagram-container {
+        display: flex;
+        justify-content: center;
+        max-height: 45vh;
+        width: 100%;
+      }
+
+      .slide-root-invariance svg {
+        max-height: 24vh;
+      }
+
+      .slide-root-invariance .orbit-svg {
+        height: auto;
+        max-height: 45vh;
+        width: 85%;
+      }
+
+      .slide-root-invariance .orbit-label {
+        fill: var(--muted);
+        font-family: "Aptos", "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .slide-root-invariance .orbit-boxes {
+        fill: #fff;
+        stroke: var(--ink);
+        stroke-width: 1.2;
+      }
+
+      .slide-root-invariance .orbit-state {
+        fill: var(--ink);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 18px;
+        text-anchor: middle;
+      }
+
+      .slide-root-invariance .orbit-index {
+        fill: var(--blue);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 16px;
+        text-anchor: middle;
+      }
+
+      .slide-root-invariance .orbit-caption {
+        fill: var(--muted);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 16px;
+        text-anchor: middle;
+      }
+
+      .slide-root-invariance .orbit-note {
+        fill: #7d8b99;
+        font-family: "Aptos", "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 16px;
+        text-anchor: middle;
+      }
+
+      .slide-root-invariance .root-highlight-a {
+        fill: #fff7d6;
+        fill-opacity: 0.4;
+        stroke: var(--gold);
+        stroke-width: 2;
+      }
+
+      .slide-root-invariance .root-highlight-b {
+        fill: var(--soft-2);
+        fill-opacity: 0.4;
+        stroke: var(--blue);
+        stroke-width: 2;
+      }
+
+      .slide-root-invariance .math-row {
+        align-items: stretch;
+        display: grid;
+        gap: 0.5rem;
+        grid-template-columns: 0.95fr 1.25fr;
+        margin-top: 0.45rem;
+        width: 100%;
+      }
+
+      .slide-root-invariance .math-block {
+        box-sizing: border-box;
+        font-size: 0.56em;
+        margin: 0;
+        padding: 0.72rem 0.88rem;
+        width: 100%;
+      }
+
+      .slide-root-invariance .summary-pair {
+        display: grid;
+        gap: 0.35rem;
+        grid-column: 1 / -1;
+        width: 100%;
+      }
+
+      .slide-root-invariance .sequence-grid {
+        display: grid;
+        gap: 0.5rem;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .slide-root-invariance .sequence-card {
+        background: #fffdf9;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 0.55rem 0.65rem;
+        text-align: center;
+      }
+
+      .slide-root-invariance .sequence-card p {
+        color: var(--ink);
+        font-size: 0.5em;
+        line-height: 1.3;
+        margin: 0;
+      }
+
+      .slide-root-invariance .note {
+        margin-top: 0.45rem;
+        width: 100%;
+      }
+
+      .slide-root-invariance .note p {
+        font-size: 0.58em;
+        line-height: 1.32;
+      }
+
+      .reveal .slide-number {
+        background: transparent;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .reveal .controls {
+        color: var(--blue);
+      }
+
+      .reveal .progress {
+        color: var(--blue);
+        height: 3px;
+      }
+
+      @media (max-width: 900px) {
+        .reveal {
+          font-size: 24px;
+        }
+
+        .cols,
+        .cols-3,
+        .two-list,
+        .pipeline,
+        .slide-root-invariance .math-row,
+        .slide-root-invariance .sequence-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .arrow {
+          transform: rotate(90deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wip-ribbon">Work in progress</div>
+    <div class="reveal">
+      <div class="slides">
+        <!--
+          Slide Outline
+          01 title
+          02 metropolis-hastings
+          03 hmc-motivation
+          04 vanilla-hmc
+          05 leapfrog
+          06 hmc-tuning
+          07 u-turn-intuition
+          08 naive-stopping
+          09 checking-all-intervals
+          10 nuts-goals
+          11 segment-trees
+          12 mh-interval-invariance
+          13 merge-abstraction
+          14 trajectory-intervals
+          15 nuts-tree
+          16 growing-the-orbit
+          17 reduction-view
+          18 internal-node-checks
+          19 structured-checks
+          20 candidate-selection
+          21 reversibility
+          22 pipeline
+          23 summary
+          24 mental-model
+        -->
+        <!-- Slide 01: Title -->
+        <section id="slide-01-title" class="title-slide">
+          <div class="kicker">No-U-Turn Sampler</div>
+          <h1>NUTS as Smart Trajectory Construction</h1>
+          <p class="subtitle">From HMC to U-turn checks to dyadic interval reductions</p>
+          <div class="rule"></div>
+          <p class="small">A conceptual route from Metropolis-Hastings correctness to dynamic HMC trajectories.</p>
+          <aside class="notes">
+            The goal is to make NUTS feel like a principled construction problem rather than a mysterious recursive algorithm.
+          </aside>
+        </section>
+
+        <!-- Slide 02: Metropolis-Hastings reminder -->
+        <section id="slide-02-metropolis-hastings">
+          <div class="kicker">Reminder</div>
+          <h2>Metropolis-Hastings is about valid transitions</h2>
+          <p>Given a proposal foobar  \(q(x,y)\), accept \(y\) with probability</p>
+          <div class="math-block center">
+            \[
+              \alpha(x,y)
+              =
+              \min\left(
+                1,
+                \frac{\pi(y)q(y,x)}{\pi(x)q(x,y)}
+              \right).
+            \]
+          </div>
+          <p class="fragment">The transition kernel must preserve the target.</p>
+          <div class="math-block center fragment">
+            \[
+              \pi(x)K(x,dy) = \pi(y)K(y,dx).
+            \]
+          </div>
+          <div class="note fragment">
+            <p>MCMC correctness depends on useful proposals and target-preserving transitions.</p>
+          </div>
+          <aside class="notes">
+            This is the bridge: NUTS is not only a clever way to move far. It must construct a valid Markov transition.
+          </aside>
+        </section>
+
+        <!-- Slide 03: HMC motivation -->
+        <section id="slide-03-hmc-motivation">
+          <div class="kicker">Motivation</div>
+          <h2>HMC replaces random walks with dynamics</h2>
+          <div class="cols">
+            <div>
+              <p>Random-walk proposals often move slowly in high dimensions.</p>
+              <p class="fragment">HMC augments position \(q\) with momentum \(p\).</p>
+            </div>
+            <div class="math-block fragment">
+              \[
+                \pi(q,p) \propto \exp[-H(q,p)]
+              \]
+              \[
+                H(q,p) = U(q) + K(p)
+              \]
+              \[
+                U(q) = -\log \pi(q)
+              \]
+            </div>
+          </div>
+          <div class="note fragment">
+            <p>HMC uses approximate physical dynamics to propose distant, informed moves.</p>
+          </div>
+        </section>
+
+        <!-- Slide 04: Vanilla HMC algorithm -->
+        <section id="slide-04-vanilla-hmc">
+          <div class="kicker">Vanilla HMC</div>
+          <h2>The standard recipe</h2>
+          <div class="steps">
+            <div class="step fragment"><p>Sample momentum \(p \sim N(0,M)\).</p></div>
+            <div class="step fragment"><p>Simulate Hamiltonian dynamics for \(L\) leapfrog steps.</p></div>
+            <div class="step fragment"><p>Propose the final phase-space point \((q',p')\).</p></div>
+            <div class="step fragment"><p>Accept or reject using the Hamiltonian error.</p></div>
+          </div>
+          <div class="math-block center fragment">
+            \[
+              \alpha
+              =
+              \min\left(1,\exp[-H(q',p') + H(q,p)]\right).
+            \]
+          </div>
+          <div class="note fragment">
+            <p>Validity comes from approximate energy preservation, volume preservation, reversibility, and MH correction.</p>
+          </div>
+        </section>
+
+        <!-- Slide 05: Leapfrog integration -->
+        <section id="slide-05-leapfrog">
+          <div class="kicker">Integrator</div>
+          <h2>Leapfrog integration</h2>
+          <div class="math-block center">
+            \[
+              (q_t, p_t)
+              \xrightarrow{\phi^V_{\epsilon/2}}
+              (q_t, p_{t+\epsilon/2})
+              \xrightarrow{\phi^T_{\epsilon}}
+              (q_{t+\epsilon}, p_{t+\epsilon/2})
+              \xrightarrow{\phi^V_{\epsilon/2}}
+              (q_{t+\epsilon}, p_{t+\epsilon})
+            \]
+          </div>
+          <div class="math-block tiny">
+            \[
+            \begin{aligned}
+              p_{t+\epsilon/2} &= p_t - \frac{\epsilon}{2}\nabla U(q_t),\\
+              q_{t+\epsilon} &= q_t + \epsilon M^{-1}p_{t+\epsilon/2},\\
+              p_{t+\epsilon} &= p_{t+\epsilon/2} - \frac{\epsilon}{2}\nabla U(q_{t+\epsilon}).
+            \end{aligned}
+            \]
+          </div>
+          <div class="tag-row fragment">
+            <span class="tag">symplectic</span>
+            <span class="tag">reversible with momentum flip</span>
+            <span class="tag">volume preserving</span>
+            <span class="tag">stable for long trajectories</span>
+          </div>
+        </section>
+
+        <!-- Slide 06: The tuning problem in HMC -->
+        <section id="slide-06-hmc-tuning">
+          <div class="kicker">Tuning</div>
+          <h2>Vanilla HMC asks for a trajectory length</h2>
+          <div class="cols">
+            <div class="box fragment">
+              <h3>Step size \(\epsilon\)</h3>
+              <p>Controls numerical stability.</p>
+            </div>
+            <div class="box fragment">
+              <h3>Number of steps \(L\)</h3>
+              <p>Controls how far the proposal moves.</p>
+            </div>
+          </div>
+          <div class="two-list">
+            <div class="fragment">
+              <h3>Too short</h3>
+              <ul>
+                <li>random-walk-like behavior</li>
+                <li>high autocorrelation</li>
+              </ul>
+            </div>
+            <div class="fragment">
+              <h3>Too long</h3>
+              <ul>
+                <li>trajectory may loop back</li>
+                <li>wasted computation</li>
+                <li>endpoint may not be far away</li>
+              </ul>
+            </div>
+          </div>
+          <div class="note fragment">
+            <p>The hard tuning problem is choosing a useful trajectory length.</p>
+          </div>
+        </section>
+
+        <!-- Slide 07: U-turn intuition -->
+        <section id="slide-07-u-turn-intuition">
+          <div class="kicker">Geometry</div>
+          <h2>U-turn intuition</h2>
+          <div class="diagram">
+            <svg viewBox="0 0 900 280" aria-label="Curved trajectory that turns back">
+              <defs>
+                <marker id="curveArrow" markerHeight="8" markerWidth="8" orient="auto" refX="7" refY="4">
+                  <polygon fill="#275c8f" points="0 0, 8 4, 0 8" />
+                </marker>
+              </defs>
+              <path d="M 95 205 C 210 55, 420 35, 555 115 C 680 188, 610 255, 475 220" fill="none" stroke="#275c8f" stroke-width="5" marker-end="url(#curveArrow)" />
+              <g fill="#fff" stroke="#1c2430" stroke-width="2">
+                <circle cx="95" cy="205" r="10" />
+                <circle cx="475" cy="220" r="10" />
+              </g>
+              <g fill="#1c2430" font-family="Aptos, Segoe UI, sans-serif" font-size="24">
+                <text x="72" y="238">a</text>
+                <text x="486" y="248">b</text>
+              </g>
+              <g stroke="#9f3a3a" stroke-width="3" marker-end="url(#curveArrow)">
+                <line x1="95" y1="205" x2="170" y2="130" />
+                <line x1="475" y1="220" x2="395" y2="205" />
+              </g>
+              <g fill="#9f3a3a" font-family="Aptos, Segoe UI, sans-serif" font-size="22">
+                <text x="175" y="128">p_a</text>
+                <text x="350" y="205">p_b</text>
+              </g>
+            </svg>
+          </div>
+          <div class="math-block center fragment">
+            \[
+              (q_b-q_a)^T p_a < 0
+              \quad\text{or}\quad
+              (q_b-q_a)^T p_b < 0.
+            \]
+          </div>
+          <p class="fragment small">The endpoint displacement is opposed to an endpoint momentum: the path is doubling back.</p>
+        </section>
+
+        <!-- Slide 08: Why naive stopping is dangerous -->
+        <section id="slide-08-naive-stopping">
+          <div class="kicker">Caution</div>
+          <h2>Naive stopping is dangerous</h2>
+          <div class="box">
+            <h3>Tempting rule</h3>
+            <p>"Integrate forward until the trajectory makes a U-turn, then stop."</p>
+          </div>
+          <p class="fragment">The stopping rule may depend on the current state's forward view of the trajectory.</p>
+          <p class="fragment">From a proposed state inside the same path, the generated candidate trajectory may differ.</p>
+          <div class="note fragment">
+            <p>Dynamic stopping must be designed so the transition remains reversible and target preserving.</p>
+          </div>
+          <aside class="notes">
+            This slide should prevent the common misconception that NUTS is simply HMC with a while-loop.
+          </aside>
+        </section>
+
+        <!-- Slide 09: The computational problem -->
+        <section id="slide-09-checking-all-intervals">
+          <div class="kicker">Cost</div>
+          <h2>Checking every interval is expensive</h2>
+          <p>Suppose an HMC path has states</p>
+          <div class="math-block center">
+            \[
+              z_0, z_1, \ldots, z_{n-1}.
+            \]
+          </div>
+          <p class="fragment">A maximally cautious check would test every interval \([i,j]\).</p>
+          <div class="math-block center fragment">
+            \[
+              (q_j-q_i)^T p_i < 0
+              \quad\text{or}\quad
+              (q_j-q_i)^T p_j < 0.
+            \]
+          </div>
+          <div class="math-block center fragment">
+            \[
+              \binom{n}{2} = O(n^2).
+            \]
+          </div>
+          <div class="note fragment">
+            <p>Naively checking all possible subtrajectories is too expensive.</p>
+          </div>
+        </section>
+
+        <!-- Slide 10: What NUTS needs to achieve -->
+        <section id="slide-10-nuts-goals">
+          <div class="kicker">Design target</div>
+          <h2>What NUTS needs to achieve</h2>
+          <div class="cols">
+            <div class="box fragment">
+              <h3>Computational problem</h3>
+              <p>Avoid exhaustive \(O(n^2)\) U-turn checking.</p>
+            </div>
+            <div class="box fragment">
+              <h3>MCMC correctness problem</h3>
+              <p>Construct a dynamic trajectory compatibly with reversibility.</p>
+            </div>
+          </div>
+          <div class="note fragment">
+            <p>The binary tree organizes trajectory construction so dynamic stopping can be efficient and correct.</p>
+          </div>
+        </section>
+
+        <!-- Slide 11: Growing the orbit -->
+        <section id="slide-11-growing-the-orbit">
+          <div class="kicker">Growth</div>
+          <h2>Growing the orbit around \(z_0\)</h2>
+          <div class="steps">
+            <div class="step fragment"><p>\(I_0 = \{0\}\)</p></div>
+            <div class="step fragment"><p>Add one state left or right.</p></div>
+            <div class="step fragment"><p>Add a block of size \(2\).</p></div>
+            <div class="step fragment"><p>Add 2 states left or right.</p></div>
+            <div class="step fragment"><p>Add a block of size \(4\).</p></div>
+            <div class="step fragment"><p>Repeat until a U-turn or divergence stops expansion.</p></div>
+          </div>
+          <div class="math-block center fragment">
+            \[
+              I_{k+1}
+              =
+              \begin{cases}
+                I_k^{\mathrm{new}} \cup I_k, & \text{if extending left},\\
+                I_k \cup I_k^{\mathrm{new}}, & \text{if extending right}.
+              \end{cases}
+            \]
+          </div>
+          <div class="note fragment">
+            <p>NUTS grows an interval using random dyadic expansions.</p>
+          </div>
+        </section>
+
+        <!-- Slide 12: The NUTS binary tree idea -->
+        <section id="slide-12-nuts-tree">
+          <div class="kicker">NUTS tree</div>
+          <h2>Dyadic chunks: 1, 2, 4, 8, ...</h2>
+          <p>At each doubling, NUTS randomly chooses to extend left or right.</p>
+          <div class="diagram">
+            <svg viewBox="0 0 920 250" aria-label="NUTS dyadic expansion">
+              <line x1="80" y1="125" x2="840" y2="125" stroke="#d8d3c8" stroke-width="4" />
+              <g fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <circle cx="420" cy="125" r="18" />
+                <circle cx="490" cy="125" r="18" />
+                <circle cx="210" cy="125" r="18" />
+                <circle cx="280" cy="125" r="18" />
+                <circle cx="560" cy="125" r="18" />
+                <circle cx="630" cy="125" r="18" />
+                <circle cx="700" cy="125" r="18" />
+                <circle cx="770" cy="125" r="18" />
+              </g>
+              <g fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="15" text-anchor="middle">
+                <text x="420" y="130">z₀</text>
+                <text x="490" y="130">z₁</text>
+                <text x="210" y="130">z₋₂</text>
+                <text x="280" y="130">z₋₁</text>
+                <text x="560" y="130">z₂</text>
+                <text x="630" y="130">z₃</text>
+                <text x="700" y="130">z₄</text>
+                <text x="770" y="130">z₅</text>
+              </g>
+              <g fill="none" stroke-width="3">
+                <path d="M 420 72 H 490" stroke="#275c8f" />
+                <path d="M 210 88 H 280" stroke="#2f6f4e" />
+                <path d="M 560 104 H 770" stroke="#8a6a1f" />
+              </g>
+              <g fill="#586270" font-family="Aptos, Segoe UI, sans-serif" font-size="20" text-anchor="middle">
+                <text x="455" y="58">add 1</text>
+                <text x="245" y="76">add 2</text>
+                <text x="665" y="94">add 4</text>
+              </g>
+            </svg>
+          </div>
+          <div class="note fragment">
+            <p>NUTS constructs a balanced binary tree over a finite interval of the Hamiltonian orbit.</p>
+          </div>
+        </section>
+
+        <!-- Slide 13: MH invariance as interval invariance -->
+        <section id="slide-13-mh-interval-invariance" class="slide-root-invariance">
+          <div class="kicker">Same orbit, different root</div>
+          <h2>Orbit invariance</h2>
+
+          <div class="diagram-container">
+            <svg
+              class="orbit-svg"
+              viewBox="0 0 920 360"
+              preserveAspectRatio="xMidYMid meet"
+              aria-label="Same physical orbit segment represented with two different roots"
+            >
+              <g
+                class="fragment"
+                data-fragment-index="2"
+                fill="none"
+                stroke="#e0ddd5"
+                stroke-dasharray="5,5"
+                stroke-width="1.5"
+              >
+                <line x1="110" y1="50" x2="110" y2="300"></line>
+                <line x1="195" y1="50" x2="195" y2="300"></line>
+                <line x1="280" y1="50" x2="280" y2="300"></line>
+                <line x1="365" y1="50" x2="365" y2="300"></line>
+                <line x1="450" y1="50" x2="450" y2="300"></line>
+                <line x1="535" y1="50" x2="535" y2="300"></line>
+                <line x1="620" y1="50" x2="620" y2="300"></line>
+                <line x1="705" y1="50" x2="705" y2="300"></line>
+              </g>
+
+              <text x="40" y="25" class="orbit-label">A: rooted at z₀</text>
+
+              <g class="orbit-boxes">
+                <rect x="82" y="45" width="56" height="36" rx="4"></rect>
+                <rect x="167" y="45" width="56" height="36" rx="4"></rect>
+                <rect x="252" y="45" width="56" height="36" rx="4"></rect>
+                <rect x="337" y="45" width="56" height="36" rx="4"></rect>
+                <rect x="422" y="45" width="56" height="36" rx="4"></rect>
+                <rect x="507" y="45" width="56" height="36" rx="4"></rect>
+                <rect x="592" y="45" width="56" height="36" rx="4"></rect>
+                <rect x="677" y="45" width="56" height="36" rx="4"></rect>
+              </g>
+
+              <g class="orbit-state">
+                <text x="110" y="69">z₋₂</text>
+                <text x="195" y="69">z₋₁</text>
+                <text x="280" y="69">z₀</text>
+                <text x="365" y="69">z₁</text>
+                <text x="450" y="69">z₂</text>
+                <text x="535" y="69">z₃</text>
+                <text x="620" y="69">z₄</text>
+                <text x="705" y="69">z₅</text>
+              </g>
+
+              <text
+                x="406"
+                y="145"
+                class="orbit-note fragment"
+                data-fragment-index="2"
+              >
+                Same physical orbit segment
+              </text>
+
+              <g class="fragment" data-fragment-index="1">
+                <text x="40" y="190" class="orbit-label">B: Re-rooted at ̄z₀ </text>
+
+                <g class="orbit-boxes">
+                  <rect x="82" y="210" width="56" height="36" rx="4"></rect>
+                  <rect x="167" y="210" width="56" height="36" rx="4"></rect>
+                  <rect x="252" y="210" width="56" height="36" rx="4"></rect>
+                  <rect x="337" y="210" width="56" height="36" rx="4"></rect>
+                  <rect x="422" y="210" width="56" height="36" rx="4"></rect>
+                  <rect x="507" y="210" width="56" height="36" rx="4"></rect>
+                  <rect x="592" y="210" width="56" height="36" rx="4"></rect>
+                  <rect x="677" y="210" width="56" height="36" rx="4"></rect>
+                </g>
+
+                <g class="orbit-state">
+                  <text x="110" y="234">z̄₀</text>
+                  <text x="195" y="234">z̄₁</text>
+                  <text x="280" y="234">z̄₂</text>
+                  <text x="365" y="234">z̄₃</text>
+                  <text x="450" y="234">z̄₄</text>
+                  <text x="535" y="234">z̄₅</text>
+                  <text x="620" y="234">z̄₆</text>
+                  <text x="705" y="234">z̄₇</text>
+                </g>
+
+              </g>
+
+              <rect x="252" y="40" width="56" height="46" rx="6" class="root-highlight-b"></rect>
+              <rect
+                x="82"
+                y="205"
+                width="56"
+                height="46"
+                rx="6"
+                class="root-highlight-a fragment"
+                data-fragment-index="1"
+              ></rect>
+            </svg>
+          </div>
+
+          <div class="math-row">
+            <div class="summary-pair fragment" data-fragment-index="4">
+              <div class="math-block center">
+                \[
+                  [0:7] \sim [-2:5]
+                \]
+                \[
+                \bar z_i = z_{i-2}
+                \iff
+                z_j = \bar z_{j+2}
+              \]
+              </div>
+              <div class="math-block center">
+                \[
+                  P_h(J \mid z_0) = P_h(J-2 \mid z_{-2})
+                \]
+              </div>
+              <div class="math-block center">
+                \[
+                  \mathbb P\big([+1,+1,+1]\big)
+                  =
+                  \mathbb P\big([+1,-1,+1]\big)
+                \]
+              </div>
+            </div>
+          </div>
+
+          <div class="note fragment" data-fragment-index="4">
+            <p>\(P_h\) needs this re-rooting symmetry in its interval accounting for detailed balance to hold.</p>
+          </div>
+        </section>
+
+        <!-- Slide 14: Selection from interval data -->
+        <section id="slide-14-selection-kernel">
+          <div class="kicker">Generating Proposals</div>
+          <h2>What NUTS does with the interval data</h2>
+          <div class="cols">
+            <div class="box fragment">
+              <h3>Control summary \(\mathcal I(z_0,\ldots,z_j)\)</h3>
+              <p>Use the merged interval data to decide whether expansion may continue.</p>
+              <div class="math-block tiny center">
+                \[
+                  \mathcal I(z_0,\ldots,z_j)
+                  \longrightarrow
+                  \bigl(\mathrm{turn}(z_0,\ldots,z_j),\ \mathrm{diverge}(z_0,\ldots,z_j)\bigr)
+                \]
+              </div>
+            </div>
+            <div class="box fragment">
+              <h3>Proposal summary \(\mathcal P(z_0,\ldots,z_j)\)</h3>
+              <p>Use weight and reservoir bookkeeping to retain one valid proposal candidate.</p>
+              <div class="math-block tiny center">
+                \[
+                  \mathcal P(z_0,\ldots,z_j)
+                  \longrightarrow
+                  \bigl(z_\star,\ w(z_0,\ldots,z_j),\ n(z_0,\ldots,z_j)\bigr)
+                \]
+              </div>
+            </div>
+          </div>
+          <div class="pipeline fragment" style="grid-template-columns: 1fr 0.2fr 1fr 0.2fr 1fr 0.2fr 1fr;">
+            <div class="pipe-item">merge interval data</div>
+            <div class="arrow">to</div>
+            <div class="pipe-item">stop / continue</div>
+            <div class="arrow">to</div>
+            <div class="pipe-item">update candidate reservoir</div>
+            <div class="arrow">to</div>
+            <div class="pipe-item">return one state</div>
+          </div>
+          <div class="math-block center fragment">
+            \[
+              K_{\mathrm{sel}}(z_{0:j}, dz)
+              =
+              \sum_{i=0}^{j} \omega_i\,\delta_{z_i}(dz).
+            \]
+          </div>
+          <div class="note fragment">
+            <p>The interval unions do not themselves produce the move. They feed a stopping rule and a selection kernel over the states already generated.</p>
+          </div>
+        </section>
+
+        <!-- Slide 15: Efficient accounting -->
+        <section id="slide-15-efficient-accounting">
+          <div class="kicker">Efficiency</div>
+          <h2>NUTS does not store every possible interval</h2>
+          <div class="cols">
+            <div class="box fragment">
+              <h3>Naive idea</h3>
+              <p>Store every subinterval \([i:j]\) and every state that could later be drawn from it.</p>
+              <div class="math-block tiny center">
+                \[
+                  \#\{\text{intervals}\}
+                  =
+                  \binom{n}{2}
+                  =
+                  O(n^2)
+                \]
+              </div>
+            </div>
+            <div class="box fragment">
+              <h3>NUTS strategy</h3>
+              <p>Store only dyadic interval summaries and one running proposal summary for each merged block.</p>
+              <div class="math-block tiny center">
+                \[
+                  \#\{\text{tree nodes}\}
+                  =
+                  O(n)
+                \]
+              </div>
+            </div>
+          </div>
+          <div class="pipeline fragment" style="grid-template-columns: 1fr 0.2fr 1fr 0.2fr 1fr;">
+            <div class="pipe-item">new leapfrog state</div>
+            <div class="arrow">to</div>
+            <div class="pipe-item">merge local summaries</div>
+            <div class="arrow">to</div>
+            <div class="pipe-item">discard raw interval alternatives</div>
+          </div>
+          <div class="note fragment">
+            <p>NUTS never needs a catalog of all admissible subintervals. It keeps only enough aggregated information to stop correctly and sample one proposal with the right weights.</p>
+          </div>
+        </section>
+
+        <!-- Slide 16: The tree -->
+        <section id="slide-16-segment-trees">
+          <div class="kicker">The tree</div>
+          <h2>A linear sequence becomes nested subtrees</h2>
+          <div class="diagram">
+            <svg viewBox="0 0 920 320" aria-label="Integration states appearing over time together with completed subtree intervals">
+              <defs>
+                <marker id="time-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+                  <polygon points="0 0, 7 3.5, 0 7" fill="#275c8f"></polygon>
+                </marker>
+              </defs>
+
+              <g fill="none" stroke="#d8d3c8" stroke-width="2.5">
+                <line x1="80" y1="255" x2="840" y2="255"></line>
+              </g>
+              <g fill="#586270" font-family="Aptos, Segoe UI, sans-serif" font-size="18">
+                <text x="80" y="300">integration in time</text>
+              </g>
+              <g stroke="#275c8f" stroke-width="2.5" marker-end="url(#time-arrow)">
+                <line x1="260" y1="295" x2="405" y2="295"></line>
+              </g>
+
+              <g fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="72" y="220" width="56" height="42" rx="5"></rect>
+              </g>
+              <g fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="22" text-anchor="middle">
+                <text x="100" y="247">z₀</text>
+              </g>
+
+              <g class="fragment" data-fragment-index="0" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="162" y="220" width="56" height="42" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="0" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="22" text-anchor="middle">
+                <text x="190" y="247">z₁</text>
+              </g>
+              <g class="fragment" data-fragment-index="0" fill="none" stroke="#275c8f" stroke-width="2.5">
+                <path d="M 100 202 V 188 H 190 V 202"></path>
+              </g>
+              <g class="fragment" data-fragment-index="0" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="110" y="148" width="70" height="34" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="0" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="19" text-anchor="middle">
+                <text x="145" y="170">[0:1]</text>
+              </g>
+
+              <g class="fragment" data-fragment-index="1" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="252" y="220" width="56" height="42" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="1" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="22" text-anchor="middle">
+                <text x="280" y="247">z₂</text>
+              </g>
+
+              <g class="fragment" data-fragment-index="2" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="342" y="220" width="56" height="42" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="2" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="22" text-anchor="middle">
+                <text x="370" y="247">z₃</text>
+              </g>
+              <g class="fragment" data-fragment-index="2" fill="none" stroke="#275c8f" stroke-width="2.5">
+                <path d="M 280 202 V 188 H 370 V 202"></path>
+              </g>
+              <g class="fragment" data-fragment-index="2" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="290" y="148" width="70" height="34" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="2" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="19" text-anchor="middle">
+                <text x="325" y="170">[2:3]</text>
+              </g>
+              <g class="fragment" data-fragment-index="2" fill="none" stroke="#2f6f4e" stroke-width="2.5">
+                <path d="M 145 130 V 114 H 325 V 114 V 130"></path>
+              </g>
+              <g class="fragment" data-fragment-index="2" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="190" y="74" width="90" height="34" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="2" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="19" text-anchor="middle">
+                <text x="235" y="96">[0:3]</text>
+              </g>
+
+              <g class="fragment" data-fragment-index="3" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="432" y="220" width="56" height="42" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="3" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="22" text-anchor="middle">
+                <text x="460" y="247">z₄</text>
+              </g>
+
+              <g class="fragment" data-fragment-index="4" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="522" y="220" width="56" height="42" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="4" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="22" text-anchor="middle">
+                <text x="550" y="247">z₅</text>
+              </g>
+              <g class="fragment" data-fragment-index="4" fill="none" stroke="#275c8f" stroke-width="2.5">
+                <path d="M 460 202 V 188 H 550 V 202"></path>
+              </g>
+              <g class="fragment" data-fragment-index="4" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="470" y="148" width="70" height="34" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="4" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="19" text-anchor="middle">
+                <text x="505" y="170">[4:5]</text>
+              </g>
+
+              <g class="fragment" data-fragment-index="5" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="612" y="220" width="56" height="42" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="5" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="22" text-anchor="middle">
+                <text x="640" y="247">z₆</text>
+              </g>
+
+              <g class="fragment" data-fragment-index="6" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="702" y="220" width="56" height="42" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="6" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="22" text-anchor="middle">
+                <text x="730" y="247">z₇</text>
+              </g>
+              <g class="fragment" data-fragment-index="6" fill="none" stroke="#275c8f" stroke-width="2.5">
+                <path d="M 640 202 V 188 H 730 V 202"></path>
+              </g>
+              <g class="fragment" data-fragment-index="6" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="650" y="148" width="70" height="34" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="6" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="19" text-anchor="middle">
+                <text x="685" y="170">[6:7]</text>
+              </g>
+              <g class="fragment" data-fragment-index="6" fill="none" stroke="#2f6f4e" stroke-width="2.5">
+                <path d="M 505 130 V 114 H 685 V 114 V 130"></path>
+              </g>
+              <g class="fragment" data-fragment-index="6" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="550" y="74" width="90" height="34" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="6" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="19" text-anchor="middle">
+                <text x="595" y="96">[4:7]</text>
+              </g>
+              <g class="fragment" data-fragment-index="6" fill="none" stroke="#8a6a1f" stroke-width="2.5">
+                <path d="M 235 56 V 40 H 595 V 40 V 56"></path>
+              </g>
+              <g class="fragment" data-fragment-index="6" fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="370" y="2" width="90" height="34" rx="5"></rect>
+              </g>
+              <g class="fragment" data-fragment-index="6" fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="19" text-anchor="middle">
+                <text x="415" y="24">[0:7]</text>
+              </g>
+            </svg>
+          </div>
+          <p class="fragment small" data-fragment-index="6">Each new integration state extends the line, and whenever an interval closes, its subtree summary appears immediately.</p>
+        </section>
+
+        <!-- Slide 17: Abstract merge operation -->
+        <section id="slide-17-merge-abstraction">
+          <div class="kicker">Abstraction</div>
+          <h2>The tree is an evaluation order</h2>
+          <div class="math-block center">
+            \[
+              \operatorname{summary}([a,c])
+              =
+              \operatorname{summary}([a,b])
+              \oplus
+              \operatorname{summary}([b+1,c]).
+            \]
+          </div>
+          <p class="fragment">For addition, \(\oplus = +\).</p>
+          <div class="math-block center fragment">
+            \[
+              (A \oplus B) \oplus C
+              =
+              A \oplus (B \oplus C).
+            \]
+          </div>
+          <div class="note fragment">
+            <p>Associativity allows local pieces to be reduced into larger interval summaries.</p>
+          </div>
+        </section>
+
+        <!-- Slide 18: Trajectory intervals -->
+        <section id="slide-18-trajectory-intervals">
+          <div class="kicker">Trajectory intervals</div>
+          <h2>Replace array entries with HMC states</h2>
+          <div class="array">
+            <div class="cell">z0</div>
+            <div class="cell">z1</div>
+            <div class="cell">z2</div>
+            <div class="cell">z3</div>
+            <div class="cell">z4</div>
+            <div class="cell">z5</div>
+            <div class="cell">z6</div>
+            <div class="cell">...</div>
+          </div>
+          <div class="cols">
+            <div class="box fragment">
+              <h3>Leaves</h3>
+              <p>Individual leapfrog states.</p>
+            </div>
+            <div class="box fragment">
+              <h3>Internal nodes</h3>
+              <p>Summaries of trajectory intervals.</p>
+            </div>
+          </div>
+          <div class="tag-row fragment">
+            <span class="tag">left endpoint</span>
+            <span class="tag">right endpoint</span>
+            <span class="tag">endpoint momenta</span>
+            <span class="tag">candidate information</span>
+            <span class="tag">U-turn flag</span>
+            <span class="tag">divergence flag</span>
+          </div>
+          <div class="note fragment">
+            <p>NUTS builds and checks summaries of trajectory intervals, not all pairs of points.</p>
+          </div>
+        </section>
+
+        <!-- Slide 19: The reduction view -->
+        <section id="slide-19-reduction-view">
+          <div class="kicker">Reduction view</div>
+          <h2>Adjacent intervals merge into larger summaries</h2>
+          <div class="math-block center">
+            \[
+              S_{a:c} = S_{a:b} \oplus S_{b+1:c}.
+            \]
+          </div>
+          <div class="cols-3">
+            <div class="box fragment"><h3>Geometry</h3><p>endpoints and momenta</p></div>
+            <div class="box fragment"><h3>Statistics</h3><p>weights and candidate</p></div>
+            <div class="box fragment"><h3>Control</h3><p>turn and divergence flags</p></div>
+          </div>
+          <div class="note fragment">
+            <p>NUTS can be understood as an interval-reduction algorithm over a Hamiltonian orbit.</p>
+          </div>
+        </section>
+
+        <!-- Slide 20: U-turn checks at internal nodes -->
+        <section id="slide-20-internal-node-checks">
+          <div class="kicker">Internal checks</div>
+          <h2>U-turn checks happen at internal nodes</h2>
+          <div class="diagram">
+            <svg viewBox="0 0 920 230" aria-label="Two child intervals merged into a parent">
+              <g stroke="#d8d3c8" stroke-width="3">
+                <line x1="460" y1="72" x2="280" y2="150" />
+                <line x1="460" y1="72" x2="640" y2="150" />
+              </g>
+              <g fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <rect x="360" y="35" width="200" height="60" rx="6" />
+                <rect x="160" y="125" width="240" height="60" rx="6" />
+                <rect x="520" y="125" width="240" height="60" rx="6" />
+              </g>
+              <g fill="#1c2430" font-family="SFMono-Regular, Consolas, monospace" font-size="24" text-anchor="middle">
+                <text x="460" y="74">[a:b]</text>
+                <text x="280" y="164">[a:m]</text>
+                <text x="640" y="164">[m+1:b]</text>
+              </g>
+            </svg>
+          </div>
+          <div class="math-block center fragment">
+            \[
+              \operatorname{turn}_{a:b}
+              =
+              \operatorname{turn}_{a:m}
+              \vee
+              \operatorname{turn}_{m+1:b}
+              \vee
+              \operatorname{cross\_turn}_{a:b}.
+            \]
+          </div>
+          <div class="math-block center fragment">
+            \[
+              \operatorname{cross\_turn}_{a:b}
+              =
+              \left[(q_b-q_a)^T p_a < 0\right]
+              \vee
+              \left[(q_b-q_a)^T p_b < 0\right].
+            \]
+          </div>
+          <p class="fragment small">Large-scale turning can appear even when smaller intervals look locally valid.</p>
+        </section>
+
+        <!-- Slide 21: Why this avoids exhaustive checking -->
+        <section id="slide-21-structured-checks">
+          <div class="kicker">Efficiency</div>
+          <h2>Structured checks replace exhaustive checks</h2>
+          <div class="cols">
+            <div class="box fragment">
+              <h3>Naive</h3>
+              <p>Check all intervals \([i,j]\).</p>
+              <p>\(O(n^2)\)</p>
+            </div>
+            <div class="box fragment">
+              <h3>NUTS tree</h3>
+              <p>Check intervals corresponding to dyadic tree nodes.</p>
+              <p>\(O(n)\)</p>
+            </div>
+          </div>
+          <div class="math-block center fragment">
+            \[
+              \text{binary tree with } n \text{ leaves}
+              \quad\Rightarrow\quad
+              O(n) \text{ nodes}.
+            \]
+          </div>
+          <div class="note fragment">
+            <p>The tree gives an efficient family of multi-scale U-turn checks.</p>
+          </div>
+        </section>
+
+        <!-- Slide 22: Candidate selection -->
+        <section id="slide-22-candidate-selection">
+          <div class="kicker">Selection</div>
+          <h2>NUTS does not simply return the final endpoint</h2>
+          <p>It constructs a candidate set along the trajectory and samples from it.</p>
+          <div class="math-block center fragment">
+            \[
+              w_j \propto \exp[-H(z_j)]
+            \]
+          </div>
+          <p class="fragment small">For multinomial NUTS, candidates are weighted by their phase-space density.</p>
+          <div class="cols fragment">
+            <div class="box">
+              <h3>Trajectory construction</h3>
+              <p>Which states are included?</p>
+            </div>
+            <div class="box">
+              <h3>Proposal selection</h3>
+              <p>Which included state is returned?</p>
+            </div>
+          </div>
+          <div class="note fragment">
+            <p>These are distinct pieces of the algorithm.</p>
+          </div>
+        </section>
+
+        <!-- Slide 23: Reversibility intuition -->
+        <section id="slide-23-reversibility">
+          <div class="kicker">Reversibility</div>
+          <h2>The segment must make sense from inside itself</h2>
+          <p>The selected trajectory segment must be coherent from the original state.</p>
+          <p class="fragment">It must also be coherent from a possible proposed state inside the same segment.</p>
+          <div class="diagram fragment">
+            <svg viewBox="0 0 920 180" aria-label="State inside trajectory segment">
+              <line x1="120" y1="90" x2="800" y2="90" stroke="#d8d3c8" stroke-width="4" />
+              <g fill="#fff" stroke="#1c2430" stroke-width="1.5">
+                <circle cx="220" cy="90" r="15" />
+                <circle cx="360" cy="90" r="15" />
+                <circle cx="500" cy="90" r="15" />
+                <circle cx="640" cy="90" r="15" />
+              </g>
+              <g fill="#1c2430" font-family="Aptos, Segoe UI, sans-serif" font-size="22" text-anchor="middle">
+                <text x="220" y="132">start</text>
+                <text x="500" y="132">possible proposal</text>
+              </g>
+              <path d="M 220 52 C 310 15, 410 15, 500 52" fill="none" stroke="#275c8f" stroke-width="3" />
+              <path d="M 500 52 C 410 15, 310 15, 220 52" fill="none" stroke="#2f6f4e" stroke-width="3" />
+            </svg>
+          </div>
+          <div class="note fragment">
+            <p>NUTS is a carefully designed dynamic MH transition, not merely "stop when the path turns."</p>
+          </div>
+        </section>
+
+        <!-- Slide 24: Putting it all together -->
+        <section id="slide-24-pipeline">
+          <div class="kicker">Pipeline</div>
+          <h2>Putting it all together</h2>
+          <div class="pipeline">
+            <div class="pipe-item fragment">HMC orbit</div>
+            <div class="arrow fragment">to</div>
+            <div class="pipe-item fragment">dyadic expansion</div>
+            <div class="arrow fragment">to</div>
+            <div class="pipe-item fragment">interval summaries</div>
+            <div class="arrow fragment">to</div>
+            <div class="pipe-item fragment">U-turn checks</div>
+          </div>
+          <div class="pipeline" style="grid-template-columns: 1fr 0.25fr 1fr 0.25fr 1fr; margin-top: 0.45rem;">
+            <div class="pipe-item fragment">candidate set</div>
+            <div class="arrow fragment">to</div>
+            <div class="pipe-item fragment">weighted proposal</div>
+            <div class="arrow fragment">to</div>
+            <div class="pipe-item fragment">MH-correct transition</div>
+          </div>
+          <div class="note fragment">
+            <p>NUTS automatically chooses a useful trajectory length while preserving MCMC correctness.</p>
+          </div>
+        </section>
+
+        <!-- Slide 25: Final conceptual summary -->
+        <section id="slide-25-summary">
+          <div class="kicker">Summary</div>
+          <h2>Why NUTS is smart</h2>
+          <div class="steps">
+            <div class="step fragment"><p>It avoids manual trajectory-length tuning.</p></div>
+            <div class="step fragment"><p>It detects wasted computation through U-turn checks.</p></div>
+            <div class="step fragment"><p>It avoids exhaustive \(O(n^2)\) checking using dyadic interval reductions.</p></div>
+            <div class="step fragment"><p>It preserves MCMC correctness through symmetric construction and careful proposal selection.</p></div>
+          </div>
+        </section>
+
+        <!-- Slide 26: Key mental model -->
+        <section id="slide-26-mental-model">
+          <div class="kicker">Mental model</div>
+          <p class="large-quote">
+            "NUTS is not just HMC with early stopping.<br />
+            It is a reversible, multi-scale construction of a Hamiltonian trajectory segment."
+          </p>
+          <aside class="notes">
+            End by reinforcing the mental model: dynamic construction is the point, not merely early termination.
+          </aside>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+    <script>
+      Reveal.initialize({
+        hash: true,
+        controls: true,
+        progress: true,
+        slideNumber: "c/t",
+        center: true,
+        width: 1280,
+        height: 720,
+        margin: 0.08,
+        transition: "none",
+        backgroundTransition: "none",
+        plugins: [RevealNotes]
+      });
+    </script>
+  </body>
+</html>

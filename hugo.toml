@@ -68,6 +68,12 @@ relativeURLs = true
     url = "posts/"
     weight = 30
 
+  [[menu.main]]
+    identifier = "presentations"
+    name = "Presentations"
+    url = "presentations/"
+    weight = 40
+
 [taxonomies]
   tag = "tags"
   category = "categories"
