@@ -4,6 +4,10 @@ title = "Jordan Simbananiye"
 enableInlineShortcodes = true
 relativeURLs = true
 
+[caches]
+  [caches.images]
+    dir = ':cacheDir/images'
+
 [pagination]
   pagerSize = 6
 
