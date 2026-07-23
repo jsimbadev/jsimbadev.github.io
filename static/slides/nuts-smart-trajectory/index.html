@@ -400,6 +400,21 @@
         text-align: center;
       }
 
+      .refs {
+        display: grid;
+        gap: 0.5rem;
+        margin-top: 0.6rem;
+      }
+
+      .refs p {
+        font-size: 0.52em;
+        margin: 0;
+      }
+
+      .refs a {
+        color: var(--blue);
+      }
+
       .slide-root-invariance .kicker {
         margin-bottom: 0.45rem;
       }
@@ -605,6 +620,7 @@
           22 pipeline
           23 summary
           24 mental-model
+          25 references
         -->
         <!-- Slide 01: Title -->
         <section id="slide-01-title" class="title-slide">
@@ -622,7 +638,7 @@
         <section id="slide-02-metropolis-hastings">
           <div class="kicker">Reminder</div>
           <h2>Metropolis-Hastings is about valid transitions</h2>
-          <p>Given a proposal foobar  \(q(x,y)\), accept \(y\) with probability</p>
+          <p>Given a proposal \(q(x,y)\), accept \(y\) with probability</p>
           <div class="math-block center">
             \[
               \alpha(x,y)
@@ -665,6 +681,9 @@
               \]
               \[
                 U(q) = -\log \pi(q)
+              \]
+              \[
+                K(p) = \frac{1}{2}p^T M^{-1}p
               \]
             </div>
           </div>
@@ -725,6 +744,7 @@
             <span class="tag">volume preserving</span>
             <span class="tag">stable for long trajectories</span>
           </div>
+          <p class="fragment tiny">With mass matrix \(M\), the endpoint velocity is \(v = M^{-1}p\).</p>
         </section>
 
         <!-- Slide 06: The tuning problem in HMC -->
@@ -788,19 +808,19 @@
                 <line x1="475" y1="220" x2="395" y2="205" />
               </g>
               <g fill="#9f3a3a" font-family="Aptos, Segoe UI, sans-serif" font-size="22">
-                <text x="175" y="128">p_a</text>
-                <text x="350" y="205">p_b</text>
+                <text x="175" y="128">v_a</text>
+                <text x="350" y="205">v_b</text>
               </g>
             </svg>
           </div>
           <div class="math-block center fragment">
             \[
-              (q_b-q_a)^T p_a < 0
+              (q_b-q_a)^T M^{-1}p_a < 0
               \quad\text{or}\quad
-              (q_b-q_a)^T p_b < 0.
+              (q_b-q_a)^T M^{-1}p_b < 0.
             \]
           </div>
-          <p class="fragment small">The endpoint displacement is opposed to an endpoint momentum: the path is doubling back.</p>
+          <p class="fragment small">The endpoint displacement is opposed to an endpoint velocity: the path is doubling back.</p>
         </section>
 
         <!-- Slide 08: Why naive stopping is dangerous -->
@@ -834,9 +854,9 @@
           <p class="fragment">A maximally cautious check would test every interval \([i,j]\).</p>
           <div class="math-block center fragment">
             \[
-              (q_j-q_i)^T p_i < 0
+              (q_j-q_i)^T M^{-1}p_i < 0
               \quad\text{or}\quad
-              (q_j-q_i)^T p_j < 0.
+              (q_j-q_i)^T M^{-1}p_j < 0.
             \]
           </div>
           <div class="math-block center fragment">
@@ -940,10 +960,10 @@
           </div>
         </section>
 
-        <!-- Slide 13: MH invariance as interval invariance -->
+        <!-- Slide 13: Reproducible construction condition -->
         <section id="slide-13-mh-interval-invariance" class="slide-root-invariance">
-          <div class="kicker">Same orbit, different root</div>
-          <h2>Orbit invariance</h2>
+          <div class="kicker">Same segment, different root</div>
+          <h2>The construction must be reproducible from any selectable state</h2>
 
           <div class="diagram-container">
             <svg
@@ -1004,7 +1024,7 @@
               </text>
 
               <g class="fragment" data-fragment-index="1">
-                <text x="40" y="190" class="orbit-label">B: Re-rooted at ̄z₀ </text>
+                <text x="40" y="190" class="orbit-label">B: re-rooted at z̄₀ </text>
 
                 <g class="orbit-boxes">
                   <rect x="82" y="210" width="56" height="36" rx="4"></rect>
@@ -1043,6 +1063,10 @@
             </svg>
           </div>
 
+          <p class="fragment small">
+            Original NUTS condition: a candidate set should have the same construction probability when viewed from any state eligible to be selected from it.
+          </p>
+
           <div class="math-row">
             <div class="summary-pair fragment" data-fragment-index="4">
               <div class="math-block center">
@@ -1056,6 +1080,7 @@
               \]
               </div>
               <div class="math-block center">
+                <p class="tiny">\(J\) is an index interval; \(P_h(J\mid z)\) is the probability that the randomized tree construction with step size \(h\) generates that interval when rooted at \(z\).</p>
                 \[
                   P_h(J \mid z_0) = P_h(J-2 \mid z_{-2})
                 \]
@@ -1071,7 +1096,7 @@
           </div>
 
           <div class="note fragment" data-fragment-index="4">
-            <p>\(P_h\) needs this re-rooting symmetry in its interval accounting for detailed balance to hold.</p>
+            <p>This re-rooting symmetry is a construction condition, not a standalone proof of target invariance. Dynamic-HMC theory gives the formal invariance account.</p>
           </div>
         </section>
 
@@ -1430,9 +1455,9 @@
             \[
               \operatorname{cross\_turn}_{a:b}
               =
-              \left[(q_b-q_a)^T p_a < 0\right]
+              \left[(q_b-q_a)^T M^{-1}p_a < 0\right]
               \vee
-              \left[(q_b-q_a)^T p_b < 0\right].
+              \left[(q_b-q_a)^T M^{-1}p_b < 0\right].
             \]
           </div>
           <p class="fragment small">Large-scale turning can appear even when smaller intervals look locally valid.</p>
@@ -1567,6 +1592,17 @@
           <aside class="notes">
             End by reinforcing the mental model: dynamic construction is the point, not merely early termination.
           </aside>
+        </section>
+
+        <!-- Slide 27: References -->
+        <section id="slide-27-references">
+          <div class="kicker">Sources</div>
+          <h2>Sources and further reading</h2>
+          <div class="refs">
+            <p>Hoffman, M. D. and Gelman, A. (2014). <a href="https://jmlr.org/papers/v15/hoffman14a.html">The No-U-Turn Sampler: Adaptively Setting Path Lengths in Hamiltonian Monte Carlo</a>. JMLR 15.</p>
+            <p>Betancourt, M. (2017). <a href="https://arxiv.org/abs/1701.02434">A Conceptual Introduction to Hamiltonian Monte Carlo</a>. arXiv:1701.02434.</p>
+            <p>Durmus, A., Gruffaz, S., Kailas, M., Saksman, E. and Vihola, M. (2024). <a href="https://arxiv.org/abs/2307.03460">On the convergence of dynamic implementations of Hamiltonian Monte Carlo and No U-Turn Samplers</a>. arXiv:2307.03460.</p>
+          </div>
         </section>
       </div>
     </div>

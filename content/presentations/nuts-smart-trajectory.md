@@ -55,3 +55,9 @@ These slides are an early version of a talk on HMC and NUTS, focusing on traject
 <div class="presentation-frame">
   <iframe src="/slides/nuts-smart-trajectory/" title="HMC and NUTS: Smart Trajectory Construction slides" loading="lazy" allowfullscreen></iframe>
 </div>
+
+## Sources and Further Reading
+
+- Hoffman and Gelman, [The No-U-Turn Sampler: Adaptively Setting Path Lengths in Hamiltonian Monte Carlo](https://jmlr.org/papers/v15/hoffman14a.html).
+- Betancourt, [A Conceptual Introduction to Hamiltonian Monte Carlo](https://arxiv.org/abs/1701.02434).
+- Durmus, Gruffaz, Kailas, Saksman, and Vihola, [On the convergence of dynamic implementations of Hamiltonian Monte Carlo and No U-Turn Samplers](https://arxiv.org/abs/2307.03460).

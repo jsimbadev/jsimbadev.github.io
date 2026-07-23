@@ -32,7 +32,7 @@ relativeURLs = true
   Title = "Jordan Simbananiye"
   Content = """
   <p>PhD student working on geometry-aware Monte Carlo methods for statistical inference. I also build distributed systems, machine learning infrastructure, data pipelines, and research tooling.</p>
-  <p><a href="about/">About</a> · <a href="contact/">Contact</a> · <a href="posts/">Posts</a></p>
+  <p><a href="about/">About</a> · <a href="projects/">Projects</a> · <a href="presentations/">Presentations</a> · <a href="posts/">Posts</a> · <a href="contact/">Contact</a></p>
   """
   AlignSocialIconsTo = "left"
 
@@ -60,19 +60,25 @@ relativeURLs = true
     identifier = "contact"
     name = "Contact"
     url = "contact/"
+    weight = 50
+
+  [[menu.main]]
+    identifier = "projects"
+    name = "Projects"
+    url = "projects/"
     weight = 20
 
   [[menu.main]]
     identifier = "posts"
     name = "Posts"
     url = "posts/"
-    weight = 30
+    weight = 40
 
   [[menu.main]]
     identifier = "presentations"
     name = "Presentations"
     url = "presentations/"
-    weight = 40
+    weight = 30
 
 [taxonomies]
   tag = "tags"
