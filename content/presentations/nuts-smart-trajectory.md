@@ -58,6 +58,8 @@ These slides are an early version of a talk on HMC and NUTS, focusing on traject
 
 ## Sources and Further Reading
 
-- Hoffman and Gelman, [The No-U-Turn Sampler: Adaptively Setting Path Lengths in Hamiltonian Monte Carlo](https://jmlr.org/papers/v15/hoffman14a.html).
-- Betancourt, [A Conceptual Introduction to Hamiltonian Monte Carlo](https://arxiv.org/abs/1701.02434).
-- Durmus, Gruffaz, Kailas, Saksman, and Vihola, [On the convergence of dynamic implementations of Hamiltonian Monte Carlo and No U-Turn Samplers](https://arxiv.org/abs/2307.03460).
+The slide deck includes source footnotes and a full bibliography. Main references include:
+
+- Hoffman, M. D. and Gelman, A. (2014). [The No-U-Turn Sampler: Adaptively Setting Path Lengths in Hamiltonian Monte Carlo](https://jmlr.org/papers/v15/hoffman14a.html). *Journal of Machine Learning Research*, 15, 1593-1623.
+- Betancourt, M. (2017). [A Conceptual Introduction to Hamiltonian Monte Carlo](https://arxiv.org/abs/1701.02434). arXiv:1701.02434.
+- Durmus, A., Gruffaz, S., Kailas, M., Saksman, E. and Vihola, M. (2024). [On the convergence of dynamic implementations of Hamiltonian Monte Carlo and No U-Turn Samplers](https://arxiv.org/abs/2307.03460). arXiv:2307.03460.

@@ -402,17 +402,35 @@
 
       .refs {
         display: grid;
-        gap: 0.5rem;
+        gap: 0.38rem;
         margin-top: 0.6rem;
       }
 
       .refs p {
-        font-size: 0.52em;
+        color: var(--ink);
+        font-size: 0.42em;
+        line-height: 1.22;
         margin: 0;
       }
 
-      .refs a {
-        color: var(--blue);
+      .slide-citation {
+        bottom: 18px;
+        color: var(--muted);
+        font-family: "Aptos", "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 11px;
+        left: 44px;
+        line-height: 1;
+        overflow: hidden;
+        pointer-events: none;
+        position: fixed;
+        right: 44px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        z-index: 18;
+      }
+
+      .slide-citation[hidden] {
+        display: none;
       }
 
       .slide-root-invariance .kicker {
@@ -635,7 +653,7 @@
         </section>
 
         <!-- Slide 02: Metropolis-Hastings reminder -->
-        <section id="slide-02-metropolis-hastings">
+        <section id="slide-02-metropolis-hastings" data-cite="Metropolis et al. (1953); Hastings (1970).">
           <div class="kicker">Reminder</div>
           <h2>Metropolis-Hastings is about valid transitions</h2>
           <p>Given a proposal \(q(x,y)\), accept \(y\) with probability</p>
@@ -664,7 +682,7 @@
         </section>
 
         <!-- Slide 03: HMC motivation -->
-        <section id="slide-03-hmc-motivation">
+        <section id="slide-03-hmc-motivation" data-cite="Duane et al. (1987); Neal (2011); Betancourt (2017).">
           <div class="kicker">Motivation</div>
           <h2>HMC replaces random walks with dynamics</h2>
           <div class="cols">
@@ -784,7 +802,7 @@
         </section>
 
         <!-- Slide 07: U-turn intuition -->
-        <section id="slide-07-u-turn-intuition">
+        <section id="slide-07-u-turn-intuition" data-cite="Hoffman and Gelman (2014); Betancourt (2017).">
           <div class="kicker">Geometry</div>
           <h2>U-turn intuition</h2>
           <div class="diagram">
@@ -961,7 +979,7 @@
         </section>
 
         <!-- Slide 13: Reproducible construction condition -->
-        <section id="slide-13-mh-interval-invariance" class="slide-root-invariance">
+        <section id="slide-13-mh-interval-invariance" class="slide-root-invariance" data-cite="Hoffman and Gelman (2014, condition C.4); Durmus et al. (2024).">
           <div class="kicker">Same segment, different root</div>
           <h2>The construction must be reproducible from any selectable state</h2>
 
@@ -1492,7 +1510,7 @@
         </section>
 
         <!-- Slide 22: Candidate selection -->
-        <section id="slide-22-candidate-selection">
+        <section id="slide-22-candidate-selection" data-cite="Hoffman and Gelman (2014); Betancourt (2017).">
           <div class="kicker">Selection</div>
           <h2>NUTS does not simply return the final endpoint</h2>
           <p>It constructs a candidate set along the trajectory and samples from it.</p>
@@ -1597,15 +1615,20 @@
         <!-- Slide 27: References -->
         <section id="slide-27-references">
           <div class="kicker">Sources</div>
-          <h2>Sources and further reading</h2>
+          <h2>References</h2>
           <div class="refs">
-            <p>Hoffman, M. D. and Gelman, A. (2014). <a href="https://jmlr.org/papers/v15/hoffman14a.html">The No-U-Turn Sampler: Adaptively Setting Path Lengths in Hamiltonian Monte Carlo</a>. JMLR 15.</p>
-            <p>Betancourt, M. (2017). <a href="https://arxiv.org/abs/1701.02434">A Conceptual Introduction to Hamiltonian Monte Carlo</a>. arXiv:1701.02434.</p>
-            <p>Durmus, A., Gruffaz, S., Kailas, M., Saksman, E. and Vihola, M. (2024). <a href="https://arxiv.org/abs/2307.03460">On the convergence of dynamic implementations of Hamiltonian Monte Carlo and No U-Turn Samplers</a>. arXiv:2307.03460.</p>
+            <p>Metropolis, N., Rosenbluth, A. W., Rosenbluth, M. N., Teller, A. H. and Teller, E. (1953). Equation of State Calculations by Fast Computing Machines. <em>Journal of Chemical Physics</em>, 21(6), 1087-1092. doi:10.1063/1.1699114.</p>
+            <p>Hastings, W. K. (1970). Monte Carlo Sampling Methods Using Markov Chains and Their Applications. <em>Biometrika</em>, 57(1), 97-109. doi:10.1093/biomet/57.1.97.</p>
+            <p>Duane, S., Kennedy, A. D., Pendleton, B. J. and Roweth, D. (1987). Hybrid Monte Carlo. <em>Physics Letters B</em>, 195(2), 216-222. doi:10.1016/0370-2693(87)91197-X.</p>
+            <p>Neal, R. M. (2011). MCMC Using Hamiltonian Dynamics. In S. Brooks, A. Gelman, G. L. Jones and X.-L. Meng (eds.), <em>Handbook of Markov Chain Monte Carlo</em>, Chapman &amp; Hall/CRC, 113-162.</p>
+            <p>Hoffman, M. D. and Gelman, A. (2014). The No-U-Turn Sampler: Adaptively Setting Path Lengths in Hamiltonian Monte Carlo. <em>Journal of Machine Learning Research</em>, 15, 1593-1623.</p>
+            <p>Betancourt, M. (2017). A Conceptual Introduction to Hamiltonian Monte Carlo. arXiv:1701.02434.</p>
+            <p>Durmus, A., Gruffaz, S., Kailas, M., Saksman, E. and Vihola, M. (2024). On the convergence of dynamic implementations of Hamiltonian Monte Carlo and No U-Turn Samplers. arXiv:2307.03460.</p>
           </div>
         </section>
       </div>
     </div>
+    <div id="slide-citation" class="slide-citation" hidden></div>
 
     <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
@@ -1623,6 +1646,17 @@
         backgroundTransition: "none",
         plugins: [RevealNotes]
       });
+
+      const slideCitation = document.getElementById("slide-citation");
+      function updateSlideCitation(event) {
+        const currentSlide = event && event.currentSlide ? event.currentSlide : Reveal.getCurrentSlide();
+        const citation = currentSlide && currentSlide.dataset ? currentSlide.dataset.cite : "";
+        slideCitation.textContent = citation || "";
+        slideCitation.hidden = !citation;
+      }
+      Reveal.on("ready", updateSlideCitation);
+      Reveal.on("slidechanged", updateSlideCitation);
+      updateSlideCitation();
     </script>
   </body>
 </html>
