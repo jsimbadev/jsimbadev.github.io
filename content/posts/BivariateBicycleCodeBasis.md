@@ -11,7 +11,7 @@ I did not come to programming through a computer science background, so I self-s
 
 I was making a [contribution](https://github.com/Deltakit/deltakit/pull/309) to an open-source quantum error-correction library. The code involved binary matrices over $\mathbb F_2$, where arithmetic is modulo two, so $1 + 1 = 0$. The work was to replace one library with another for a subspace calculation. That subspace represented a logical-operator space. As far as the algorithm I changed in isolation was concerned, the necessary invariants appeared to be preserved.
 
-However, the downstream code expected a particular block-supported basis representation. The new library used a different basis convention, producing an apparently equivalent but unusable basis for the consuming code. That exposed a separate question about hidden conventions in numerical software, which deserves its own post.
+However, the downstream code expected a particular block-supported basis representation. The new library appeared used a different basis convention, producing an apparently equivalent but unusable basis for the consuming code. That exposed a separate question about hidden conventions in numerical software, which deserves its own post.
 
 ## The problem hiding in a basis
 
@@ -223,10 +223,10 @@ It also suggested a deeper issue, which I am not going to fully unpack here. The
 
 ## The broader lesson
 
-The new representation did not solve the wider basis-construction problem by itself. It made the failure visible to the eye.
+The new representation did not solve the wider basis-construction problem by itself. It made the failure precise.
 
 I could not reason effectively about a realistic `45 × 90` binary matrix by inspecting it, so I changed its representation. The mathematical object stayed the same, but the debugging interface changed completely. Dense rows became supports. Supports became canonical tuples. Tuples became set operations. Nonzero entries became table records. The block condition became a filter.
 
-I had started by staring at a matrix. I ended with a relational queries.
+I had started by staring at a matrix. I ended with relational queries.
 
 You can also read [about me](../../about/) or reach me through the [contact page](../../contact/).
