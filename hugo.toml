@@ -16,6 +16,7 @@ relativeURLs = true
     path = "github.com/adityatelange/hugo-PaperMod"
 
 [params]
+  math = false
   defaultTheme = "auto"
   ShowReadingTime = true
   ShowPostNavLinks = true
@@ -46,6 +47,12 @@ relativeURLs = true
 
 [markup]
   [markup.goldmark]
+    [markup.goldmark.extensions]
+      [markup.goldmark.extensions.passthrough]
+        enable = true
+        [markup.goldmark.extensions.passthrough.delimiters]
+          block = [['$$', '$$']]
+          inline = [['$', '$']]
     [markup.goldmark.renderer]
       unsafe = true
 
