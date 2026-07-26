@@ -6,7 +6,7 @@ weight = 1
 tags = ["research tooling", "zotero", "mcp", "scientific software", "agents"]
 +++
 
-Using agents for reasearch usually comes down to a question of trust.
+Using agents for research usually comes down to a question of trust.
 
 Papers get handed to agents by URL. Abstracts get pasted into chats. A question starts with one source, drifts into another, and by the end it is not always obvious whether the model is still attached to the paper it claims to be discussing. Around the centre of my current research interests, I can usually catch that. I know the core papers well enough to notice when two sources are being blurred together, or when a citation is being used a little too conveniently.
 
@@ -94,14 +94,16 @@ The important database file is:
 Zotero/zotero.sqlite
 ```
 
-The tooling can be pointed at that file explicitly with `ZOTERO_DB_PATH`, but if that is unset it eventually looks for the default Zotero directory under `~/Zotero`. In a WSL setup, `~/Zotero` and the Windows Zotero directory are usually different places. A symlink makes the expected path resolve to the real one:
+The tooling can be pointed at that file explicitly with `ZOTERO_DB_PATH`, but if that is unset it eventually looks for the default Zotero directory under `~/Zotero`. In a WSL setup, `~/Zotero` and the Windows Zotero directory are usually different places.
+
+If `~/Zotero` already exists as a real directory, do not overwrite it casually. Otherwise, a symlink makes the expected path resolve to the real one:
 
 ```bash
 ls -ld "$HOME/Zotero"
 ln -s /mnt/c/Users/<username>/Zotero "$HOME/Zotero"
 ```
 
-If `~/Zotero` already exists as a real directory, do not overwrite it casually. Use the explicit database path instead:
+Or use the explicit database path instead:
 
 ```bash
 export ZOTERO_DB_PATH="/mnt/c/Users/<username>/Zotero/zotero.sqlite"
@@ -195,17 +197,19 @@ This matters for scientific agentic workflows because the work moves across tool
 
 Rather than chasing citations around manually, the agent should have access to these. 
 
-The cost is context. Every MCP server adds some overhead. Every tool response competes with the code, the experiment, and the actual question. A Zotero library can be large, and even a small search result can become noisy if it brings back too many titles, abstracts, notes, tags, attachment records, and citation fields.
+## Cons
 
-That is not only a token problem. It is also a reasoning problem. A model with twenty loosely related papers in context is not necessarily in a better position than a model with three good ones. Sometimes it is in a worse position, because the task now includes sorting through irrelevant bibliography.
+The cost is context. Every MCP server adds some overhead. Every tool response competes with the code, the experiment, and the actual question. A Zotero library can be large, and even a small search result can become noisy if it brings back too many titles, abstracts, etc...
 
-So the useful version is not:
+That is not only a token problem. It is also a reasoning problem. A model with twenty loosely related papers in context is not necessarily in a better position than a model with three good ones. Sometimes it is in a worse position, because the task now includes sorting through irrelevant bibliography. So you ought to be responsible with how you navigate your harness.
+
+So it's not:
 
 ```text
 dump Zotero into the prompt
 ```
 
-It is:
+More like:
 
 ```text
 query the library
@@ -214,19 +218,11 @@ include enough metadata to audit the result
 only pull notes or full text when needed
 ```
 
-This is where RAG probably belongs. Not because adding RAG makes the system sound more serious, but because retrieval is a way to control the shape of the context. Index the useful parts of the Zotero library, retrieve a small number of passages or notes, and return them with enough citation metadata that the agent's answer can be checked.
+## TODOs
+- Leverage custom skills to constrain the zotero-cli
+  - Use that `--limit` to keep resource pressure at bay
+- With semantic search enabled, zotero-cli uses [chromadb](https://docs.trychroma.com/docs/overview/introduction). I haven't dug deep into it, but perhaps there are some levers for optimization. This is where RAG comes in. Index the useful parts of the Zotero library, retrieve a small number of passages or notes, and return them with enough citation metadata that the agent's answer can be checked.
 
-The response shape I would want is something like:
-
-```text
-title
-citation key or DOI
-short reason for match
-one relevant note or passage
-link back to the Zotero item
-```
-
-That feels like the right boundary: Zotero-backed context, not Zotero-shaped prompt bloat.
 
 ## Sources
 
