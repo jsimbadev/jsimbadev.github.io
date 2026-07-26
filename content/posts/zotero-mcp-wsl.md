@@ -1,6 +1,6 @@
 +++
 title = "Connecting Zotero MCP from WSL"
-date = "2026-07-25"
+date = "2026-07-26"
 description = "A small tutorial on connecting Zotero on Windows to Codex running inside WSL."
 weight = 1
 tags = ["research tooling", "zotero", "mcp", "scientific software", "agents"]
