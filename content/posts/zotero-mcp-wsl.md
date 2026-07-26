@@ -218,7 +218,7 @@ include enough metadata to audit the result
 only pull notes or full text when needed
 ```
 
-## TODOs
+## Possible Extensions
 - Leverage custom skills to constrain the zotero-cli
   - Use that `--limit` to keep resource pressure at bay
 - With semantic search enabled, zotero-cli uses [chromadb](https://docs.trychroma.com/docs/overview/introduction). I haven't dug deep into it, but perhaps there are some levers for optimization. This is where RAG comes in. Index the useful parts of the Zotero library, retrieve a small number of passages or notes, and return them with enough citation metadata that the agent's answer can be checked.
